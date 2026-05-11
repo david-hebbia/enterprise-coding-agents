@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Inside Enterprise-Grade Coding Agents — David Osemwegie, Hebbia</title>
+
+  <!-- RevealJS core -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/theme/white.min.css" />
+
+  <!-- Google Fonts: Geist Sans + Geist Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Geist+Mono:wght@100..900&display=swap"
+    rel="stylesheet"
+  />
+
+  <style>
+    /* === Geist Pixel from jsdelivr === */
+    @font-face {
+      font-family: 'Geist Pixel';
+      src: url('https://cdn.jsdelivr.net/npm/geist@1.7.0/dist/fonts/geist-pixel/GeistPixel-Square.woff2') format('woff2');
+      font-weight: 400;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      /* Colors */
+      --bg-primary: #ffffff;
+      --bg-secondary: #fafafa;
+      --bg-dark: #000000;
+
+      --text-primary: #000000;
+      --text-secondary: #444444;
+      --text-muted: #888888;
+      --text-on-dark: #ffffff;
+      --text-on-dark-muted: rgba(255, 255, 255, 0.6);
+
+      --border-subtle: #eaeaea;
+      --border-on-dark: rgba(255, 255, 255, 0.18);
+
+      --accent-1: #0070f3;
+      --accent-2: #ff0080;
+
+      /* Fonts */
+      --font-display: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-body: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'Geist Mono', 'JetBrains Mono', ui-monospace, monospace;
+      --font-pixel: 'Geist Pixel', 'Geist Mono', monospace;
+
+      /* Sizes */
+      --size-stat-hero: clamp(6rem, 15vw, 13rem);
+      --size-stat: clamp(4rem, 9vw, 7.5rem);
+      --size-impact-hero: clamp(3.5rem, 8vw, 6rem);
+      --size-impact: clamp(2.5rem, 5.5vw, 4.25rem);
+      --size-h1: clamp(4.5rem, 7vw, 7rem);
+      --size-h1-pixel: clamp(3.5rem, 6.5vw, 6rem);
+      --size-h2: clamp(2.5rem, 4.2vw, 4rem);
+      --size-h3: clamp(1.5rem, 2.4vw, 2.1rem);
+      --size-h4: clamp(1.35rem, 2vw, 1.75rem);
+      --size-body: clamp(1.1rem, 1.4vw, 1.5rem);
+      --size-body-lg: clamp(1.4rem, 1.9vw, 1.9rem);
+      --size-body-xl: clamp(1.7rem, 2.2vw, 2.4rem);
+      --size-small: clamp(0.9rem, 1vw, 1.1rem);
+      --size-label: clamp(0.95rem, 1.2vw, 1.25rem);
+
+      /* Spacing */
+      --space-xs: 0.5rem;
+      --space-sm: 1rem;
+      --space-md: 2rem;
+      --space-lg: 3rem;
+      --space-xl: 4rem;
+
+      /* Components */
+      --bar-width: 64px;
+      --bar-height: 2px;
+      --card-radius: 4px;
+      --card-padding: 1.5rem;
+      --content-max-width: 1500px;
+      --slide-padding: 80px;
+    }
+
+    .reveal {
+      font-family: var(--font-body);
+      font-weight: 400;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    .reveal .slides section {
+      text-align: left;
+      padding: var(--slide-padding);
+      box-sizing: border-box;
+      background: transparent;
+    }
+
+    .reveal .slides section.centered { text-align: center; }
+
+    .reveal h1,
+    .reveal h2,
+    .reveal h3,
+    .reveal h4 {
+      font-family: var(--font-display);
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: none;
+      letter-spacing: -0.035em;
+      line-height: 1.04;
+      margin: 0 0 0.5em 0;
+    }
+
+    .reveal h1 { font-size: var(--size-h1); font-weight: 700; letter-spacing: -0.045em; }
+    .reveal h2 { font-size: var(--size-h2); font-weight: 600; }
+    .reveal h3 { font-size: var(--size-h3); font-weight: 600; letter-spacing: -0.025em; }
+    .reveal h4 { font-size: var(--size-h4); font-weight: 600; letter-spacing: -0.02em; }
+
+    .reveal p,
+    .reveal li {
+      font-size: var(--size-body);
+      line-height: 1.5;
+      margin: 0 0 0.9em 0;
+    }
+
+    .reveal ul, .reveal ol { margin: 0 0 1em 1.5em; padding: 0; }
+    .reveal li { margin-bottom: 0.5em; line-height: 1.4; }
+    .reveal strong { font-weight: 600; }
+
+    /* Typography utilities */
+    .reveal .label {
+      font-family: var(--font-mono);
+      font-size: var(--size-label);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin: 0 0 var(--space-sm) 0;
+    }
+
+    .reveal .lead {
+      font-family: var(--font-display);
+      font-size: var(--size-body-xl);
+      font-weight: 400;
+      color: var(--text-secondary);
+      letter-spacing: -0.015em;
+      line-height: 1.3;
+    }
+
+    .reveal .impact {
+      font-family: var(--font-display);
+      font-size: var(--size-impact);
+      font-weight: 600;
+      line-height: 1.06;
+      letter-spacing: -0.035em;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-md) 0;
+    }
+
+    .reveal .impact-hero {
+      font-family: var(--font-display);
+      font-size: var(--size-impact-hero);
+      font-weight: 700;
+      line-height: 1.03;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-md) 0;
+    }
+
+    .reveal .title-pixel {
+      font-family: var(--font-pixel);
+      font-size: var(--size-h1-pixel);
+      font-weight: 400;
+      letter-spacing: 0;
+      line-height: 1.1;
+      color: var(--text-primary);
+      margin: 0 0 var(--space-md) 0;
+    }
+
+    .reveal .stat {
+      font-family: var(--font-mono);
+      font-size: var(--size-stat);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .reveal .stat-hero {
+      font-family: var(--font-pixel);
+      font-size: var(--size-stat-hero);
+      font-weight: 400;
+      line-height: 1;
+      color: var(--text-primary);
+      margin: 0;
+    }
+
+    .reveal .stat-label {
+      font-family: var(--font-mono);
+      font-size: var(--size-body);
+      font-weight: 500;
+      color: var(--text-secondary);
+      margin: var(--space-sm) 0 0 0;
+      line-height: 1.4;
+    }
+
+    /* Color utilities */
+    .reveal .text-primary { color: var(--text-primary); }
+    .reveal .text-secondary { color: var(--text-secondary); }
+    .reveal .text-muted { color: var(--text-muted); }
+    .reveal .text-on-dark { color: var(--text-on-dark) !important; }
+    .reveal .text-on-dark-muted { color: var(--text-on-dark-muted) !important; }
+    .reveal .text-accent-1 { color: var(--accent-1) !important; }
+    .reveal .text-accent-2 { color: var(--accent-2) !important; }
+
+    .reveal .highlight-1 { color: var(--accent-1); }
+    .reveal .highlight-2 { color: var(--accent-2); }
+    .reveal .highlight-strike {
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      color: var(--text-muted);
+    }
+
+    /* Components */
+    .reveal .bar {
+      width: var(--bar-width);
+      height: var(--bar-height);
+      background: var(--text-primary);
+      margin: 0 0 var(--space-md) 0;
+      border: 0;
+    }
+    .reveal .bar-on-dark { background: var(--text-on-dark); }
+    .reveal .bar-accent-1 { background: var(--accent-1); }
+    .reveal .bar-accent-2 { background: var(--accent-2); }
+    .reveal .centered .bar { margin-left: auto; margin-right: auto; }
+
+    .reveal .card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--card-radius);
+      padding: var(--card-padding);
+    }
+    .reveal .card h3, .reveal .card h4 { margin-bottom: 0.4rem; }
+    .reveal .card p {
+      margin: 0;
+      font-size: var(--size-body);
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+    .reveal .card .card-label {
+      font-family: var(--font-mono);
+      font-size: var(--size-small);
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin: 0 0 var(--space-sm) 0;
+    }
+    .reveal .card-accent-1 { border-color: var(--accent-1); }
+    .reveal .card-accent-2 { border-color: var(--accent-2); }
+
+    /* Card on dark sections */
+    .reveal section[data-background-color] .card {
+      background: transparent;
+      border-color: var(--border-on-dark);
+      color: var(--text-on-dark);
+    }
+    .reveal section[data-background-color] .card h3,
+    .reveal section[data-background-color] .card h4 { color: var(--text-on-dark); }
+    .reveal section[data-background-color] .card p { color: var(--text-on-dark-muted); }
+    .reveal section[data-background-color] .card .card-label { color: var(--text-on-dark-muted); }
+
+    .reveal .grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-lg);
+    }
+    .reveal .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--space-md);
+    }
+    .reveal .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: var(--space-md);
+    }
+    @media (min-width: 1400px) {
+      .reveal .grid-4 { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    /* Slide footer */
+    .slide-footer {
+      position: fixed;
+      bottom: 22px;
+      left: var(--slide-padding);
+      right: var(--slide-padding);
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      z-index: 1000;
+      pointer-events: none;
+    }
+
+    /* Inline code */
+    .reveal :not(pre) > code {
+      font-family: var(--font-mono);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      padding: 0.1em 0.35em;
+      border-radius: 3px;
+      font-size: 0.9em;
+    }
+    .reveal section[data-background-color] :not(pre) > code {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.18);
+      color: var(--text-on-dark);
+    }
+
+    /* Helpers */
+    .text-mono { font-family: var(--font-mono); }
+
+    /* Comparison table (Striker vs Coder) */
+    .reveal .compare {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--card-radius);
+      overflow: hidden;
+    }
+    .reveal .compare > div {
+      padding: 1.1rem 1.4rem;
+      font-family: var(--font-mono);
+      font-size: var(--size-small);
+      line-height: 1.45;
+      border-bottom: 1px solid var(--border-subtle);
+    }
+    .reveal .compare > div:nth-child(odd) {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+    }
+    .reveal .compare > div:nth-child(even) {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      border-left: 1px solid var(--border-subtle);
+    }
+    .reveal .compare > div:nth-last-child(-n+2) { border-bottom: 0; }
+    .reveal .compare .head {
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-size: var(--size-small);
+      color: var(--text-primary);
+    }
+    .reveal .compare .head.accent { color: var(--accent-1); }
+
+    /* Don't / Do contrast — black left, accent right */
+    .reveal .vs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border-radius: var(--card-radius);
+      overflow: hidden;
+    }
+    .reveal .vs > div {
+      padding: 1.4rem 1.6rem;
+      font-family: var(--font-display);
+      font-size: var(--size-body-lg);
+      font-weight: 500;
+      line-height: 1.3;
+      letter-spacing: -0.015em;
+    }
+    .reveal .vs > .dont {
+      background: var(--bg-secondary);
+      color: var(--text-muted);
+      text-decoration: line-through;
+      text-decoration-thickness: 1.5px;
+    }
+    .reveal .vs > .do {
+      background: var(--text-primary);
+      color: var(--text-on-dark);
+      border-left: 2px solid var(--accent-1);
+    }
+
+    /* Secrets list — mono chips */
+    .reveal .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem 0.8rem;
+      justify-content: center;
+      max-width: 1200px;
+      margin: var(--space-lg) auto;
+    }
+    .reveal .chips span {
+      font-family: var(--font-mono);
+      font-size: clamp(1rem, 1.3vw, 1.4rem);
+      padding: 0.5rem 0.9rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: 3px;
+      color: var(--text-primary);
+      white-space: nowrap;
+    }
+    .reveal section[data-background-color] .chips span {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.2);
+      color: var(--text-on-dark);
+    }
+
+    /* Paper cuts row */
+    .reveal .cuts-row {
+      display: flex;
+      gap: var(--space-xl);
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-top: var(--space-xl);
+    }
+    .reveal .cuts-row > span {
+      font-family: var(--font-display);
+      font-size: clamp(2rem, 3.5vw, 3.5rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      color: var(--text-primary);
+    }
+    .reveal .cuts-row > span + span::before {
+      content: '·';
+      color: var(--text-muted);
+      margin-right: var(--space-xl);
+    }
+  </style>
+</head>
+<body>
+  <div class="slide-footer">
+    <span>INSIDE ENTERPRISE-GRADE CODING AGENTS</span>
+    <span>HEBBIA</span>
+  </div>
+
+  <div class="reveal">
+    <div class="slides">
+
+      <!-- ============================================================ -->
+      <!-- 01 — Title                                                    -->
+      <!-- ============================================================ -->
+      <section class="centered">
+        <h1 class="title-pixel">INSIDE<br />ENTERPRISE-GRADE<br />CODING&nbsp;AGENTS</h1>
+        <div class="bar bar-accent-1"></div>
+        <p class="lead">What it actually takes to put a coding agent in production.</p>
+        <p class="text-mono text-muted" style="margin-top: 2rem; font-size: var(--size-small);">
+          DAVID OSEMWEGIE &nbsp;·&nbsp; HEBBIA
+        </p>
+
+        <aside class="notes">
+          [OPEN. Pause on title.]
+
+          Hi. I'm David. I work at Hebbia. Ten minutes on what it actually takes
+          to put a coding agent in production.
+
+          [BRIDGE: Three teams who already did this. Then us.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 02 — Hook · Three teams · we did it twice                     -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">WHAT THE INDUSTRY'S SHIPPING NOW</p>
+        <h2>Internal coding agents, in production.</h2>
+        <div class="bar"></div>
+        <div class="grid-3" style="margin-top: var(--space-lg);">
+          <div class="card card-accent-1">
+            <img src="public/stripe-logo.svg" alt="Stripe" style="height: 44px; width: auto; display: block; margin-bottom: var(--space-sm);" />
+            <p class="card-label">STRIPE · MINIONS</p>
+            <h3>1,300<span style="font-size: 0.5em; letter-spacing: 0;"> PRs/WK</span></h3>
+            <p>One-shot, end-to-end. No human-written code. Every PR human-reviewed.</p>
+          </div>
+          <div class="card card-accent-1">
+            <img src="public/ramp-logo.svg" alt="Ramp" style="height: 44px; width: auto; display: block; margin-bottom: var(--space-sm);" />
+            <p class="card-label">RAMP · INSPECT</p>
+            <h3>60%<span style="font-size: 0.5em; letter-spacing: 0;"> OF MERGED PRs</span></h3>
+            <p>Modal sandboxes running the full stack: Postgres, Redis, Temporal, VS Code, Chromium.</p>
+          </div>
+          <div class="card card-accent-1">
+            <img src="public/coinbase-logo.svg" alt="Coinbase" style="height: 44px; width: auto; display: block; margin-bottom: var(--space-sm);" />
+            <p class="card-label">COINBASE · TIGER TEAM</p>
+            <h3>12wk&nbsp;→&nbsp;days</h3>
+            <p>Six-week paved-roads sprint. 25+ hrs/week saved. Build time: quarters to days.</p>
+          </div>
+        </div>
+
+        <aside class="notes">
+          Three teams. Three different agents. All in production.
+
+          Stripe's Minions ship over thirteen hundred pull requests every week.
+          One-shot, end-to-end coding agents — Stripe's own framing.
+
+          Ramp's Inspect now authors more than sixty percent of all merged PRs
+          at Ramp. Sixty percent. In a regulated financial environment.
+
+          Coinbase formed a tiger team. Six weeks. They cut the time to build a
+          new agent from twelve weeks to days.
+
+          [BRIDGE: We tried this too. Twice. Let me show you each.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 03 — WHAT STRIKER WAS                                         -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">STRIKER · OUR FIRST AGENT</p>
+        <h2>A Slack bot that booted a fresh sandbox per task.</h2>
+        <div class="bar"></div>
+
+        <div style="display: grid; grid-template-columns: 0.9fr 50px 2.4fr 50px 0.9fr; gap: var(--space-sm); margin-top: var(--space-lg); align-items: stretch;">
+          <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+            <p class="card-label">ENGINEER</p>
+            <h3 style="font-size: var(--size-h4); margin: 0;">In Slack</h3>
+            <p style="font-family: var(--font-mono); font-size: 0.95rem; margin-top: 0.5rem; color: var(--text-muted);">@striker fix the chat bug</p>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); font-weight: 100;">→</div>
+
+          <div class="card card-accent-1" style="display: flex; flex-direction: column;">
+            <p class="card-label">STRIKER · VERCEL APP + EPHEMERAL SANDBOX</p>
+            <h3 style="font-size: var(--size-h4); margin: 0 0 0.5rem 0;">OpenCode runs Claude inside a per-task Vercel Sandbox</h3>
+            <div class="chips" style="margin: 0.6rem 0 0.4rem 0; justify-content: flex-start; max-width: 100%;">
+              <span>OpenCode</span>
+              <span>Anthropic</span>
+              <span>GitHub App</span>
+              <span>Linear</span>
+              <span>Slack</span>
+              <span>Datadog</span>
+              <span>PostHog</span>
+              <span>LaunchDarkly</span>
+              <span>Figma</span>
+            </div>
+            <p style="font-family: var(--font-mono); font-size: 0.85rem; margin-top: 0.4rem; color: var(--text-muted);">
+              repos cloned per sandbox: frontend (yarn) · agent (bun) · backend (<span class="highlight-2">install: 'skip'</span>)
+            </p>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); font-weight: 100;">→</div>
+
+          <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+            <p class="card-label">RESULT</p>
+            <h3 style="font-size: var(--size-h4); margin: 0;">PR on GitHub</h3>
+            <p style="font-family: var(--font-mono); font-size: 0.95rem; margin-top: 0.5rem; color: var(--text-muted);">opened by <code>striker-bot</code></p>
+          </div>
+        </div>
+
+        <p class="lead" style="margin-top: var(--space-lg); text-align: center; font-size: var(--size-body-lg);">
+          <span class="text-primary"><strong>One Slack message.</strong></span>
+          A sandboxed agent in 30 seconds. A PR in five minutes. Zero local setup.
+        </p>
+
+        <aside class="notes">
+          We tried this too. Twice. The first one was called Striker — it died.
+          The second one is called Coder — it works. Let me start with Striker.
+
+          The architecture was simple but real.
+
+          You at-mention striker in Slack. A Vercel function receives the webhook,
+          provisions a fresh Vercel Sandbox per task, and drops in OpenCode — the
+          open-source coding-agent CLI — running Claude. The sandbox clones the
+          three repos the agent needs: the frontend, the agent itself, and the
+          backend.
+
+          OpenCode sees a bunch of tools — GitHub App for code, Linear for tickets,
+          Slack for replies, plus Datadog, PostHog, LaunchDarkly, Figma. Every one
+          of those tokens lives as an env var on the Vercel project.
+
+          The agent does its work and opens a PR. The PR identity is our GitHub
+          App — striker-bot. A human reviews and merges.
+
+          Striker shipped fast. One Slack message turned into a sandboxed coding
+          agent in thirty seconds, and a PR in five minutes. Zero local setup.
+          Anyone could close a bug in their first week.
+
+          [Foreshadow: backend was install: skip. We'll come back to that.]
+          [BRIDGE: But every one of those chips was a token on someone else's platform.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 04 — Vercel April 2026 incident (Point 2 setup)               -->
+      <!-- ============================================================ -->
+      <section class="centered">
+        <p class="label">THREE WEEKS AGO · APRIL 2026</p>
+        <p class="impact-hero" style="margin-top: var(--space-md);">
+          Vercel discloses a <span class="highlight-2">security incident</span>.<br />
+          Environment variables exposed.<br />
+          <span style="font-size: 0.7em;">Our agent's tokens live there.</span>
+        </p>
+        <div class="chips" style="margin-top: var(--space-lg);">
+          <span>GitHub App</span>
+          <span>Linear</span>
+          <span>Anthropic</span>
+          <span>Slack bot</span>
+          <span>Datadog</span>
+          <span>PostHog</span>
+          <span>LaunchDarkly</span>
+          <span>Figma</span>
+          <span>Vercel</span>
+        </div>
+        <p class="lead" style="margin-top: var(--space-md); font-size: var(--size-body-lg); max-width: 1400px; margin-left: auto; margin-right: auto;">
+          Origin: <span class="highlight-2">a third-party AI tool</span>. It compromised an employee's Google Workspace,
+          then pivoted into Vercel.
+        </p>
+        <p class="text-mono text-muted" style="margin-top: var(--space-sm); font-size: var(--size-small);">
+          vercel.com/kb/bulletin/vercel-april-2026-security-incident
+        </p>
+
+        <aside class="notes">
+          Three weeks ago. April 19, 2026.
+
+          Vercel discloses a security incident. Attackers got the environment
+          variables on Vercel — API keys, tokens, database credentials. Plaintext.
+
+          We weren't in the affected set. But our agent's tokens live there.
+          The agent with write access to our repos. The agent that can reach
+          into our infrastructure.
+
+          And here's the kicker — read the bulletin. The attacker got in through
+          a third-party AI tool that one Vercel employee was using. That tool
+          compromised the employee's Google Workspace, which let them pivot
+          into Vercel's internal systems.
+
+          Sit with that for a second. A talk about coding agents starts with:
+          "the breach started in someone else's coding agent."
+
+          We dodged it. The next one might land. That was the day Striker had
+          to die.
+
+          [BRIDGE: So we rebuilt — this time inside our own infrastructure.]
+
+          [LINK FOR ANYONE ASKING:
+          vercel.com/kb/bulletin/vercel-april-2026-security-incident]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 05 — WHAT CODER IS                                            -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">CODER · WHAT WE BUILT NEXT</p>
+        <h2>A dev environment inside our infra.</h2>
+        <div class="bar"></div>
+
+        <div style="display: grid; grid-template-columns: 1fr 50px 2.2fr 50px 1fr; gap: var(--space-sm); margin-top: var(--space-lg); align-items: stretch;">
+          <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+            <p class="card-label">ENGINEER</p>
+            <h3 style="font-size: var(--size-h4); margin: 0;">On coder.com</h3>
+            <p style="font-family: var(--font-mono); font-size: 0.95rem; margin-top: 0.5rem; color: var(--text-muted);">"Open workspace"</p>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); font-weight: 100;">→</div>
+
+          <div class="card card-accent-1" style="display: flex; flex-direction: column;">
+            <p class="card-label">CODER · K8S POD IN OUR TAILNET</p>
+            <h3 style="font-size: var(--size-h4); margin: 0 0 0.5rem 0;">Your dev container</h3>
+            <div class="chips" style="margin: 0.5rem 0 0 0; justify-content: flex-start; max-width: 100%;">
+              <span>Monorepo</span>
+              <span>Frontend</span>
+              <span>Docker-in-Docker</span>
+              <span>Backend running</span>
+              <span>Frontend running</span>
+              <span>Claude Code in tmux</span>
+              <span>gh ← <em>your</em> OAuth</span>
+            </div>
+          </div>
+
+          <div style="display: flex; align-items: center; justify-content: center; font-size: 3rem; color: var(--text-muted); font-weight: 100;">→</div>
+
+          <div class="card" style="display: flex; flex-direction: column; justify-content: center;">
+            <p class="card-label">RESULT</p>
+            <h3 style="font-size: var(--size-h4); margin: 0;">PR on GitHub</h3>
+            <p style="font-family: var(--font-mono); font-size: 0.95rem; margin-top: 0.5rem; color: var(--text-muted);">opened by <strong>you</strong></p>
+          </div>
+        </div>
+
+        <p class="lead" style="margin-top: var(--space-lg); text-align: center; font-size: var(--size-body-lg);">
+          <span class="text-primary"><strong>Full stack runs end-to-end.</strong></span>
+          Zero credentials baked in. You author the PR.
+        </p>
+
+        <aside class="notes">
+          After April — and after we admitted the sandbox couldn't run our stack — we
+          replaced Striker with this. Coder. Built on coder.com — the open-source product.
+          We host it ourselves, inside our Kubernetes cluster, inside our Tailscale mesh.
+
+          You open coder.com in your browser, click "open workspace." A privileged
+          Kubernetes pod boots — Docker-in-Docker, our full monorepo cloned,
+          our frontend cloned. Two tmux sessions come up. The backend is running.
+          The frontend is running. Claude Code is sitting in a tmux waiting for you.
+
+          You type into Claude Code in your terminal — same as you would locally.
+
+          When Claude Code opens a PR, it doesn't have a bot token. We wrap the
+          <code>gh</code> CLI so it pulls <em>your</em> GitHub OAuth on every call.
+          The PR opens in your name.
+
+          Everything about the dev loop is better. The full stack runs end-to-end.
+          Zero credentials baked in. You author the PR. The agent is your tool.
+
+          [BRIDGE: Three things changed between Striker and Coder. Let me walk
+          through them.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 06 — POINT 1 · Run the stack e2e                              -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">ONE · RUN THE STACK</p>
+        <h2>If the agent can't run your stack, every PR is fiction.</h2>
+        <div class="bar"></div>
+        <div class="compare" style="margin-top: var(--space-lg);">
+          <div class="head">STRIKER</div>
+          <div class="head accent">CODER</div>
+
+          <div>Cloned the monorepo into a Vercel sandbox.</div>
+          <div>Full backend + frontend, in our K8s + Tailnet.</div>
+
+          <div>Backend was <code>install: 'skip'</code>. Literally.</div>
+          <div>Backend + frontend boot on workspace start. Real services.</div>
+
+          <div>Wrote code it couldn't verify. Fiction-shaped PRs.</div>
+          <div>Ships only code it has run.</div>
+        </div>
+
+        <aside class="notes">
+          Point one. If the agent can't run your stack, every PR is fiction.
+
+          Striker on the left. We cloned our monorepo into a Vercel sandbox.
+          But the config literally said <code>install: skip</code> on the backend.
+          The agent was writing code against a backend that never started.
+          Every PR was unverified fiction until a human pulled it locally.
+
+          Coder on the right. Every workspace is a privileged Kubernetes pod
+          running Docker-in-Docker, with our monorepo and frontend pre-cloned.
+          When the workspace boots, two tmux sessions come up — one running
+          the backend, one running the frontend. The agent ships nothing it
+          didn't run end-to-end.
+
+          [BRIDGE: That was the easy half — make the agent actually run the code.
+          The harder half: what credentials does it get along the way?]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 07 — POINT 2 · Hard guardrails                                -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">TWO · HARD GUARDRAILS</p>
+        <h2>The guardrail is the <span class="highlight-1">absence</span>, not the instruction.</h2>
+        <div class="bar"></div>
+        <div class="vs" style="margin-top: var(--space-lg);">
+          <div class="dont">Prompt the agent never to open a PR.</div>
+          <div class="do">Don't give the token PR-write scope.</div>
+          <div class="dont">Tell it not to touch the production DB.</div>
+          <div class="do">Don't route prod DB into the container.</div>
+          <div class="dont">Hope the system prompt holds.</div>
+          <div class="do">Make the wrong action physically impossible.</div>
+        </div>
+        <div class="compare" style="margin-top: var(--space-lg);">
+          <div class="head">STRIKER</div>
+          <div class="head accent">CODER</div>
+
+          <div>Env vars on Vercel. MCPs through vendors.</div>
+          <div>Zero credentials baked in. Tailscale + SSO for what you need.</div>
+
+          <div>Broad scopes, hope-driven.</div>
+          <div>Every cred faced one question: <em>"jailbroken tomorrow — what does it do?"</em> Answer: <span class="highlight-2">exfil customer data</span> or <span class="highlight-2">delete prod</span>? It didn't go in.</div>
+        </div>
+
+        <aside class="notes">
+          Point two. The guardrail is the absence, not the instruction.
+
+          Three pairs. You can prompt the agent never to open a PR. Or you can
+          withhold PR-write scope from the token. One is hope. One is a guarantee.
+
+          You can tell the agent not to touch production. Or keep production out
+          of the container.
+
+          You can hope the system prompt holds. Or you can make the wrong action
+          physically impossible — at the IAM layer, at the network layer.
+
+          Remember the April bulletin? This is exactly why the credential model
+          looks the way it does. Striker had env vars on Vercel and MCPs hosted
+          by vendors. If a Vercel CVE had landed on us, every one of those
+          tokens would be in the blast radius. Coder starts with zero
+          credentials baked in. If you need DB access, you authenticate
+          interactively — Tailscale plus SSO, like a human would.
+
+          And we ran every credential through one question: if Coder gets
+          jailbroken tomorrow, what does it do with this? For most things, fine.
+          For a few, the answer was "it exfils customer data" or "it deletes prod."
+          Those didn't go in.
+
+          Not because we told it not to. Because they aren't there.
+
+          [BRIDGE: Here's what happens when teams skip this step.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 08 — THE ALTERNATIVE · Amazon Kiro + AI code study           -->
+      <!-- ============================================================ -->
+      <section data-background-color="#000000">
+        <p class="label text-on-dark-muted">THE ALTERNATIVE</p>
+        <h2 class="text-on-dark">Amazon's coding agent deleted production.</h2>
+        <div class="bar bar-on-dark"></div>
+
+        <p class="lead text-on-dark-muted" style="margin-top: var(--space-md); font-size: var(--size-body-xl); max-width: 1500px; line-height: 1.35;">
+          Last December, Kiro got a small bug fix in AWS Cost Explorer. It decided
+          the cleanest path was to <span style="color: #FF0080;">delete production and rebuild</span> —
+          faster than a human could read the confirm prompt.
+          <strong class="text-on-dark">13-hour outage.</strong>
+        </p>
+
+        <p class="lead text-on-dark-muted" style="margin-top: var(--space-md); font-size: var(--size-body-lg); max-width: 1500px;">
+          Three months later, two more six-hour outages knock amazon.com offline.
+          <strong class="text-on-dark">6.3M lost orders.</strong>
+          Leaked memo: <em>"trend of incidents," "high blast radius," "GenAI-assisted changes."</em>
+        </p>
+
+        <p class="impact text-on-dark" style="margin-top: var(--space-lg); font-size: var(--size-impact);">
+          And it's not just Amazon.
+        </p>
+
+        <div class="cuts-row" style="margin-top: var(--space-md); justify-content: flex-start;">
+          <span class="text-on-dark"><span style="color: #FF0080;">1.7×</span> bugs</span>
+          <span class="text-on-dark"><span style="color: #FF0080;">1.5–2×</span> security flaws</span>
+          <span class="text-on-dark"><span style="color: #FF0080;">8×</span> I/O issues</span>
+        </div>
+
+        <p class="text-mono text-on-dark-muted" style="margin-top: var(--space-sm); font-size: var(--size-small);">
+          AI-GENERATED CODE · STACK OVERFLOW + CODERABBIT · 2025
+        </p>
+
+        <aside class="notes">
+          Last December, Amazon gave their AI coding agent Kiro a task: fix a
+          small bug in AWS Cost Explorer.
+
+          Kiro decided the cleanest path was to delete the production
+          environment and rebuild it. Executed faster than a human could read a
+          confirm prompt.
+
+          Thirteen-hour outage.
+
+          Three months later — March 2026 — two more outages, six hours each.
+          Amazon dot com goes down. 6.3 million lost orders.
+
+          The internal memo that leaked talked about a "trend of incidents,"
+          a "high blast radius," "GenAI-assisted changes."
+
+          That's the alternative to building this carefully. That's what's been
+          happening at one of the most sophisticated engineering orgs on the
+          planet.
+
+          And it's not just Amazon. CodeRabbit and Stack Overflow studied this
+          last year. AI-generated code introduces 1.7x more bugs than human
+          code. Security flaws at one and a half to two times the rate. I/O
+          performance issues at eight times.
+
+          The internet, measurably, broke more in 2025 than any prior year.
+
+          [BRIDGE: Which is why we wrote this down as a single sentence.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 09 — Proverb (synthesis)                                      -->
+      <!-- ============================================================ -->
+      <section class="centered">
+        <p class="label">A PROVERB</p>
+        <div class="bar"></div>
+        <p class="impact-hero" style="margin-top: var(--space-lg);">
+          If there's a way,<br />
+          the agent will <span class="highlight-2">find a way</span>.
+        </p>
+
+        <aside class="notes">
+          [Pause. Hold it.]
+
+          Same line — but now you've seen the concrete version on the last slide.
+
+          If there's a way, the agent will find a way.
+
+          [Long pause.]
+
+          [BRIDGE: So the last question is what you choose to optimize for.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 10 — POINT 3 · The metric (+ PRs under the user)              -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">THREE · MAKE HUMANS EFFECTIVE</p>
+        <h2>The metric you pick determines the product you build.</h2>
+        <div class="bar"></div>
+        <div class="grid-2" style="margin-top: var(--space-lg);">
+          <div class="card">
+            <p class="card-label">MEASURE THIS</p>
+            <h3>Lines of code shipped by agent</h3>
+            <p style="margin-top: var(--space-sm);">→ you build <span class="text-mono">Striker</span>.</p>
+          </div>
+          <div class="card card-accent-1">
+            <p class="card-label">MEASURE THIS INSTEAD</p>
+            <h3>Time devs spend in flow</h3>
+            <p style="margin-top: var(--space-sm);">→ you build <span class="text-mono">something different</span>.</p>
+          </div>
+        </div>
+        <p class="lead" style="margin-top: var(--space-lg); text-align: center; max-width: 1400px; margin-left: auto; margin-right: auto; font-size: var(--size-body-xl);">
+          <span class="text-primary"><strong>The engineer opens the PR.</strong></span> Not the bot.
+        </p>
+
+        <aside class="notes">
+          Point three. The metric you pick determines the product you build.
+
+          Measure "lines of code shipped by agent," you build Striker. It
+          optimizes for volume. It opens a thousand PRs no one wanted.
+
+          Measure "time developers spend in flow," you build something different.
+          You build a thing that removes the slow hour, not the easy hour.
+
+          Headline: the engineer opens the PR. Not the bot. The agent helps you
+          build. You ship the change.
+
+          Let me show you what that means in practice.
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 11 — POINT 3 evidence · Coder is your laptop                  -->
+      <!-- ============================================================ -->
+      <section>
+        <p class="label">WHAT THAT MEANS IN PRACTICE</p>
+        <h2>Coder is your laptop, not a bot account.</h2>
+        <div class="bar"></div>
+        <div class="compare" style="margin-top: var(--space-lg);">
+          <div class="head">STRIKER</div>
+          <div class="head accent">CODER</div>
+
+          <div>Bot identity. Bot opens the PR.</div>
+          <div>You open coder.com. You SSH in. Claude Code runs in <em>your</em> tmux.</div>
+
+          <div>A separate GitHub App token.</div>
+          <div><code>gh</code> wrapped to refresh <em>your</em> GitHub OAuth on every call.</div>
+
+          <div><code>git commit</code> as <code>striker-bot</code>.</div>
+          <div><code>GIT_AUTHOR_EMAIL</code> = your email. <code>gh pr create</code> opens the PR as <em>you</em>.</div>
+
+          <div>The metric was volume.</div>
+          <div>The agent never has a credential you don't.</div>
+        </div>
+
+        <aside class="notes">
+          Concretely — Coder is your laptop, not a bot account.
+
+          You open coder.com. You hit the button. Inside a Kubernetes pod —
+          Docker-in-Docker — your monorepo, your frontend, your tmux sessions.
+          Claude Code runs inside those sessions.
+
+          When Claude Code runs <code>gh pr create</code>, the wrapped
+          <code>gh</code> binary pulls <em>your</em> GitHub OAuth from Coder's
+          external auth provider. No bot token exists.
+          <code>GIT_AUTHOR_EMAIL</code> and <code>GIT_COMMITTER_EMAIL</code> are
+          set to the workspace owner — which is you.
+
+          The PR lands in GitHub under your name. Your face. Your accountability.
+          The agent helped you write it. You shipped it.
+
+          The agent never has a credential you don't have.
+
+          [BRIDGE: One thing to take home.]
+        </aside>
+      </section>
+
+      <!-- ============================================================ -->
+      <!-- 12 — Reprise / Close                                          -->
+      <!-- ============================================================ -->
+      <section class="centered" data-background-color="#000000">
+        <p class="label text-on-dark-muted">ONE THING TO REMEMBER</p>
+        <div class="bar bar-on-dark"></div>
+        <p class="impact-hero text-on-dark" style="margin-top: var(--space-md);">
+          If there's a way,<br />
+          the agent will <span style="color: #FF0080;">find a way</span>.
+        </p>
+        <p class="impact text-on-dark" style="margin-top: var(--space-lg); font-size: var(--size-impact);">
+          So don't ask the agent.<br />
+          Ask your <span class="highlight-1">infrastructure</span>.
+        </p>
+        <p class="text-mono text-on-dark-muted" style="margin-top: var(--space-xl); font-size: var(--size-small);">
+          DAVID OSEMWEGIE &nbsp;·&nbsp; HEBBIA &nbsp;·&nbsp; HEBBIA.COM
+        </p>
+
+        <aside class="notes">
+          One thing to remember.
+
+          If there's a way, the agent will find a way.
+
+          So don't ask the agent.
+
+          Ask your infrastructure.
+
+          [Pause.]
+
+          Thanks. I'm David. Happy to take questions.
+        </aside>
+      </section>
+
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/reveal.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/reveal.js/4.6.1/plugin/notes/notes.min.js"></script>
+  <script>
+    Reveal.initialize({
+      hash: true,
+      center: true,
+      transition: 'fade',
+      transitionSpeed: 'fast',
+      backgroundTransition: 'fade',
+      width: 1920,
+      height: 1080,
+      margin: 0.06,
+      minScale: 0.2,
+      maxScale: 2.0,
+      plugins: [RevealNotes]
+    });
+  </script>
+</body>
+</html>
