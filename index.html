@@ -460,12 +460,9 @@
         </p>
 
         <aside class="notes">
-          [OPEN. Pause on title.]
-
-          Hi. I'm David. I work at Hebbia. Ten minutes on what it actually takes
-          to put a coding agent in production.
-
-          [BRIDGE: Three teams who already did this. Then us.]
+          - "Hi. I'm David, I work at Hebbia."
+          - "Ten minutes on what it actually takes to put a coding agent in production."
+          - **Bridge:** "Let me start with three teams who've already done it."
         </aside>
       </section>
 
@@ -498,18 +495,11 @@
         </div>
 
         <aside class="notes">
-          Three teams. Three different agents. All in production.
-
-          Stripe's Minions ship over thirteen hundred pull requests every week.
-          One-shot, end-to-end coding agents — Stripe's own framing.
-
-          Ramp's Inspect now authors more than sixty percent of all merged PRs
-          at Ramp. Sixty percent. In a regulated financial environment.
-
-          Coinbase formed a tiger team. Six weeks. They cut the time to build a
-          new agent from twelve weeks to days.
-
-          [BRIDGE: We tried this too. Twice. Let me show you each.]
+          - **Stripe / Minions** — 1,300 PRs a week. One-shot, end-to-end. Stripe's words, not mine.
+          - **Ramp / Inspect** — 60% of merged PRs at the company. In a regulated financial environment.
+          - **Coinbase / Tiger Team** — six-week sprint, cut new-agent build time from twelve weeks to days.
+          - **One-liner:** "Three teams. Three agents. All in production."
+          - **Bridge:** "We tried this twice. The first one died. The second works. Let me show you both."
         </aside>
       </section>
 
@@ -564,30 +554,13 @@
         </p>
 
         <aside class="notes">
-          We tried this too. Twice. The first one was called Striker — it died.
-          The second one is called Coder — it works. Let me start with Striker.
-
-          The architecture was simple but real.
-
-          You at-mention striker in Slack. A Vercel function receives the webhook,
-          provisions a fresh Vercel Sandbox per task, and drops in OpenCode — the
-          open-source coding-agent CLI — running Claude. The sandbox clones the
-          three repos the agent needs: the frontend, the agent itself, and the
-          backend.
-
-          OpenCode sees a bunch of tools — GitHub App for code, Linear for tickets,
-          Slack for replies, plus Datadog, PostHog, LaunchDarkly, Figma. Every one
-          of those tokens lives as an env var on the Vercel project.
-
-          The agent does its work and opens a PR. The PR identity is our GitHub
-          App — striker-bot. A human reviews and merges.
-
-          Striker shipped fast. One Slack message turned into a sandboxed coding
-          agent in thirty seconds, and a PR in five minutes. Zero local setup.
-          Anyone could close a bug in their first week.
-
-          [Foreshadow: backend was install: skip. We'll come back to that.]
-          [BRIDGE: But every one of those chips was a token on someone else's platform.]
+          - At-mention `@striker` in Slack. Vercel webhook fires. Sandbox boots in 30 seconds.
+          - OpenCode + Claude inside a per-task Vercel Sandbox. Three repos cloned: frontend, agent, backend.
+          - A bunch of tools wired in — GitHub App, Linear, Slack, Datadog, PostHog, LaunchDarkly, Figma. Every token is an env var on Vercel.
+          - PR opens as `striker-bot`. Human reviews and merges.
+          - **One-liner:** "One Slack message. Sandboxed agent in 30 seconds. PR in five minutes. Zero local setup."
+          - **Foreshadow:** "Backend was `install: skip`. Hold that thought."
+          - **Bridge:** "Every one of those chips was a token on someone else's platform."
         </aside>
       </section>
 
@@ -621,30 +594,13 @@
         </p>
 
         <aside class="notes">
-          Three weeks ago. April 19, 2026.
-
-          Vercel discloses a security incident. Attackers got the environment
-          variables on Vercel — API keys, tokens, database credentials. Plaintext.
-
-          We weren't in the affected set. But our agent's tokens live there.
-          The agent with write access to our repos. The agent that can reach
-          into our infrastructure.
-
-          And here's the kicker — read the bulletin. The attacker got in through
-          a third-party AI tool that one Vercel employee was using. That tool
-          compromised the employee's Google Workspace, which let them pivot
-          into Vercel's internal systems.
-
-          Sit with that for a second. A talk about coding agents starts with:
-          "the breach started in someone else's coding agent."
-
-          We dodged it. The next one might land. That was the day Striker had
-          to die.
-
-          [BRIDGE: So we rebuilt — this time inside our own infrastructure.]
-
-          [LINK FOR ANYONE ASKING:
-          vercel.com/kb/bulletin/vercel-april-2026-security-incident]
+          - April 19, 2026. Vercel discloses a security incident. Plaintext env vars on Vercel exposed.
+          - We dodged it. Our agent's tokens lived there.
+          - **The kicker** — read the bulletin. The attacker got in through a third-party AI tool one Vercel employee was using. Compromised their Google Workspace, pivoted into Vercel.
+          - **The bit that should land:** "A talk about coding agents starts with: the breach started in someone else's coding agent."
+          - **One-liner:** "We dodged it. The next one might land. That was the day Striker had to die."
+          - **Bridge:** "So we rebuilt — this time inside our own infrastructure."
+          - [LINK if asked: vercel.com/kb/bulletin/vercel-april-2026-security-incident]
         </aside>
       </section>
 
@@ -694,26 +650,12 @@
         </p>
 
         <aside class="notes">
-          After April — and after we admitted the sandbox couldn't run our stack — we
-          replaced Striker with this. Coder. Built on coder.com — the open-source product.
-          We host it ourselves, inside our Kubernetes cluster, inside our Tailscale mesh.
-
-          You open coder.com in your browser, click "open workspace." A privileged
-          Kubernetes pod boots — Docker-in-Docker, our full monorepo cloned,
-          our frontend cloned. Two tmux sessions come up. The backend is running.
-          The frontend is running. Claude Code is sitting in a tmux waiting for you.
-
-          You type into Claude Code in your terminal — same as you would locally.
-
-          When Claude Code opens a PR, it doesn't have a bot token. We wrap the
-          <code>gh</code> CLI so it pulls <em>your</em> GitHub OAuth on every call.
-          The PR opens in your name.
-
-          Everything about the dev loop is better. The full stack runs end-to-end.
-          Zero credentials baked in. You author the PR. The agent is your tool.
-
-          [BRIDGE: Three things changed between Striker and Coder. Let me walk
-          through them.]
+          - Built on coder.com (open source). We host it ourselves. K8s cluster, inside our Tailscale mesh.
+          - Click "open workspace." Privileged K8s pod boots — Docker-in-Docker, monorepo cloned, frontend cloned.
+          - Two tmux sessions: backend running, frontend running. Claude Code waiting in tmux.
+          - When Claude Code opens a PR, we wrap `gh` so it pulls **your** GitHub OAuth. **PR opens in your name.**
+          - **One-liner:** "Full stack runs end-to-end. Zero credentials baked in. You author the PR. The agent is your tool."
+          - **Bridge:** "Three things changed between Striker and Coder. Let me walk through them."
         </aside>
       </section>
 
@@ -739,21 +681,11 @@
         </div>
 
         <aside class="notes">
-          Point one. If the agent can't run your stack, every PR is fiction.
-
-          Striker on the left. We cloned our monorepo into a Vercel sandbox.
-          But the config literally said <code>install: skip</code> on the backend.
-          The agent was writing code against a backend that never started.
-          Every PR was unverified fiction until a human pulled it locally.
-
-          Coder on the right. Every workspace is a privileged Kubernetes pod
-          running Docker-in-Docker, with our monorepo and frontend pre-cloned.
-          When the workspace boots, two tmux sessions come up — one running
-          the backend, one running the frontend. The agent ships nothing it
-          didn't run end-to-end.
-
-          [BRIDGE: That was the easy half — make the agent actually run the code.
-          The harder half: what credentials does it get along the way?]
+          - "If the agent can't run your stack, every PR is fiction."
+          - Striker: `install: skip` on the backend. Agent wrote code against a backend that never started.
+          - Coder: Two tmux sessions, both services boot on workspace start. Agent ships only code it has run.
+          - **One-liner:** "Every Striker PR was unverified fiction until a human pulled it locally."
+          - **Bridge:** "That was the easy half. Harder half: what credentials does it get along the way?"
         </aside>
       </section>
 
@@ -784,30 +716,14 @@
         </div>
 
         <aside class="notes">
-          Point two. The guardrail is the absence, not the instruction.
-
-          Three pairs. You can prompt the agent never to open a PR. Or you can
-          withhold PR-write scope from the token. One is hope. One is a guarantee.
-
-          You can tell the agent not to touch production. Or keep production out
-          of the container.
-
-          You can hope the system prompt holds. Or you can make the wrong action
-          physically impossible — at the IAM layer, at the network layer.
-
-          Remember the April bulletin? This is exactly why the credential model
-          looks the way it does. Striker had env vars on Vercel and MCPs hosted
-          by vendors. If a Vercel CVE had landed on us, every one of those
-          tokens would be in the blast radius. Coder starts with zero
-          credentials baked in. If you need DB access, you authenticate
-          interactively — Tailscale plus SSO, like a human would.
-
-          And we ran every credential through one question: if Coder gets
-          jailbroken tomorrow, what does it do with this? For most things, fine.
-          For a few, the answer was "it exfils customer data" or "it deletes prod."
-          Those didn't go in.
-
-          Not because we told it not to. Because they aren't there.
+          - **The guardrail is the absence, not the instruction.** That's the slide's headline — say it.
+          - Three pairs:
+            - Prompt the agent never to open a PR → don't give the token PR-write scope
+            - Tell it not to touch prod DB → don't route prod DB into the container
+            - Hope the system prompt holds → make the wrong action physically impossible
+          - **Callback to Vercel:** If a CVE had landed on us, every one of those Striker tokens was in the blast radius. Coder starts with zero baked-in creds. You authenticate interactively — Tailscale + SSO, like a human would.
+          - **The one-question test:** "If Coder gets jailbroken tomorrow, what does it do with this credential?" For most things, fine. For a few — "exfils customer data" or "deletes prod." Those didn't go in.
+          - **The line:** "Not because we told it not to. Because they aren't there."
         </aside>
       </section>
 
@@ -851,19 +767,10 @@
         </p>
 
         <aside class="notes">
-          Picture this. This is Louie. And these are a nice pair of leather Jordans.
-
-          [pause for the room to enjoy Louie]
-
-          You don't sit Louie down and explain that those are limited release. You
-          don't write "do not chew" on a sticky note on the tongue. You don't trust
-          Louie to make the right call at two a.m. when nobody is watching.
-
-          You crate-train.
-
-          Louie's in the crate. The Jordans aren't. Louie is fine. Jordans are fine.
-          Nobody's a victim. Nothing's destroyed. Everyone sleeps.
-
+          - "This is Louie. These are a nice pair of leather Jordans."
+          - **Pause for the room.** Don't rush the puppy.
+          - "You don't sit Louie down and explain that those are limited release. You don't write 'do not chew' on a sticky note. You don't trust Louie at 2 a.m."
+          - **You crate-train.**
         </aside>
       </section>
 
@@ -878,14 +785,10 @@
           <span class="highlight-2">Crate-training</span>, for code.
         </p>
         <aside class="notes">
-          [pause — let the room sit with it]
-
-          Put another way. That's all a sandbox is. Crate-training, for code.
-
-          Your agent is Louie. Production is the Jordans. The container is the
-          crate. Don't tell it not to delete prod. Crate-train.
-
-          [BRIDGE: Here's what happens when teams skip this step.]
+          - "That's all a sandbox is. Crate-training, for code."
+          - Let the room sit with it. This is the line they'll quote on the way out.
+          - Agent = Louie. Production = Jordans. Container = crate.
+          - **Bridge:** "Here's what happens when teams skip this step."
         </aside>
       </section>
 
@@ -925,33 +828,14 @@
         </p>
 
         <aside class="notes">
-          Last December, Amazon gave their AI coding agent Kiro a task: fix a
-          small bug in AWS Cost Explorer.
-
-          Kiro decided the cleanest path was to delete the production
-          environment and rebuild it. Executed faster than a human could read a
-          confirm prompt.
-
-          Thirteen-hour outage.
-
-          Three months later — March 2026 — two more outages, six hours each.
-          Amazon dot com goes down. 6.3 million lost orders.
-
-          The internal memo that leaked talked about a "trend of incidents,"
-          a "high blast radius," "GenAI-assisted changes."
-
-          That's the alternative to building this carefully. That's what's been
-          happening at one of the most sophisticated engineering orgs on the
-          planet.
-
-          And it's not just Amazon. CodeRabbit and Stack Overflow studied this
-          last year. AI-generated code introduces 1.7x more bugs than human
-          code. Security flaws at one and a half to two times the rate. I/O
-          performance issues at eight times.
-
-          The internet, measurably, broke more in 2025 than any prior year.
-
-          [BRIDGE: Which is why we wrote this down as a single sentence.]
+          - Last December, Amazon's coding agent **Kiro** got a small bug fix in AWS Cost Explorer.
+          - Kiro decided the cleanest path was to delete production and rebuild. Faster than a human could read the confirm prompt.
+          - **13-hour outage.**
+          - March 2026, three months later: two more six-hour outages knock down amazon.com. **6.3M lost orders.**
+          - Leaked memo: "trend of incidents," "high blast radius," "GenAI-assisted changes."
+          - **And it's not just Amazon** — CodeRabbit + Stack Overflow studied this. AI code: 1.7× bugs, 1.5–2× security flaws, 8× I/O issues.
+          - **One-liner:** "The internet, measurably, broke more in 2025 than any prior year."
+          - **Bridge:** "Which is why we wrote this down as a single sentence."
         </aside>
       </section>
 
@@ -967,15 +851,10 @@
         </p>
 
         <aside class="notes">
-          [Pause. Hold it.]
-
-          Same line — but now you've seen the concrete version on the last slide.
-
-          If there's a way, the agent will find a way.
-
-          [Long pause.]
-
-          [BRIDGE: So the last question is what you choose to optimize for.]
+          - Just read it.
+          - **"If there's a way, the agent will find a way."**
+          - **Long pause.** Hold it.
+          - **Bridge:** "So the last question is what you choose to optimize for."
         </aside>
       </section>
 
@@ -1003,18 +882,11 @@
         </p>
 
         <aside class="notes">
-          Point three. The metric you pick determines the product you build.
-
-          Measure "lines of code shipped by agent," you build Striker. It
-          optimizes for volume. It opens a thousand PRs no one wanted.
-
-          Measure "time developers spend in flow," you build something different.
-          You build a thing that removes the slow hour, not the easy hour.
-
-          Headline: the engineer opens the PR. Not the bot. The agent helps you
-          build. You ship the change.
-
-          Let me show you what that means in practice.
+          - "The metric you pick determines the product you build."
+          - Measure LOC-by-agent → you build Striker. Optimizes for volume. Opens a thousand PRs no one wanted.
+          - Measure time devs spend in flow → you build something different. Removes the slow hour, not the easy hour.
+          - **The headline line:** "The engineer opens the PR. Not the bot."
+          - **Bridge:** "Let me show you what that means in practice."
         </aside>
       </section>
 
@@ -1043,24 +915,12 @@
         </div>
 
         <aside class="notes">
-          Concretely — Coder is your laptop, not a bot account.
-
-          You open coder.com. You hit the button. Inside a Kubernetes pod —
-          Docker-in-Docker — your monorepo, your frontend, your tmux sessions.
-          Claude Code runs inside those sessions.
-
-          When Claude Code runs <code>gh pr create</code>, the wrapped
-          <code>gh</code> binary pulls <em>your</em> GitHub OAuth from Coder's
-          external auth provider. No bot token exists.
-          <code>GIT_AUTHOR_EMAIL</code> and <code>GIT_COMMITTER_EMAIL</code> are
-          set to the workspace owner — which is you.
-
-          The PR lands in GitHub under your name. Your face. Your accountability.
-          The agent helped you write it. You shipped it.
-
-          The agent never has a credential you don't have.
-
-          [BRIDGE: One thing to take home.]
+          - You open coder.com. You hit the button. Pod boots inside our K8s.
+          - `gh` is wrapped — pulls **your** GitHub OAuth from Coder's external auth provider on every call.
+          - `GIT_AUTHOR_EMAIL` and `GIT_COMMITTER_EMAIL` are the workspace owner. You.
+          - PR lands under your name. Your face. Your accountability.
+          - **The one-liner:** "The agent never has a credential you don't."
+          - **Bridge:** "One thing to take home."
         </aside>
       </section>
 
@@ -1083,17 +943,11 @@
         </p>
 
         <aside class="notes">
-          One thing to remember.
-
-          If there's a way, the agent will find a way.
-
-          So don't ask the agent.
-
-          Ask your infrastructure.
-
-          [Pause.]
-
-          Thanks. I'm David. Happy to take questions.
+          - "One thing to remember."
+          - **"If there's a way, the agent will find a way."**
+          - "So don't ask the agent. Ask your infrastructure."
+          - **Pause.**
+          - "Thanks. I'm David. Happy to take questions."
         </aside>
       </section>
 
